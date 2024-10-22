@@ -1,0 +1,201 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# Bézier function for quadratic Bézier curve (degree 2)
+def bezier_curve(t, P0, P1, P2):
+    # Bézier curve formula
+    curve = np.outer((1 - t)**2, P0) + np.outer(2 * (1 - t) * t, P1) + np.outer(t**2, P2)
+    return curve
+
+# Shift the control points horizontally
+def shift_points(points, dx):
+    return points + np.array([dx, 0])
+
+# Function to plot Bézier curves
+def plot_bezier_curves(curves, labels, colors):
+    for curve, label, color in zip(curves, labels, colors):
+        plt.plot(curve[:, 0], curve[:, 1], linestyle='-', color=color, label=label)
+
+# Function to plot nodes and edges
+def plot_nodes_and_edges(nodes, edges):
+    # Plot nodes
+    for label, (x, y) in nodes.items():
+        plt.scatter(x, y, color='black')
+        plt.text(x, y, label, fontsize=8, color='black')
+
+    # Plot edges
+    for (start_label, end_label) in edges:
+        start = nodes[start_label]
+        end = nodes[end_label]
+        plt.plot([start[0], end[0]], [start[1], end[1]], 'k--')
+
+# Define control points for Bézier curves
+
+#First Bezier curve _ Glucose to Glucose-6-phosphate
+P0 = np.array([0, 0])
+P1_2 = np.array([1, 2])
+P2 = np.array([2, 0])
+
+P3 = np.array([0, 2])
+P3_4 = np.array([1,0])
+P4 = np.array([2, 2])
+
+#second Bezier Curve _ Fructose to Fructose1,6-Bisphosphate
+P5 = np.array([4, 0])
+P5_6 = np.array([5, 2])
+P6 = np.array([6, 0])
+
+P7 = np.array([4, 2])
+P7_8 = np.array([5, 0])
+P8 = np.array([6, 2])
+
+#Third Bezier Curve Glyceraldehyde-3-phosphate to 1,3Bisphosphoglycerate
+
+P9 = np.array([8, -4])
+P9_10 = np.array([9, -2])
+P10 = np.array([10, -4])
+
+P11= np.array([8, -2])
+P11_12= np.array([9, -4])
+P12 = np.array([10, -2])
+
+#Fourth Bezier Curve 1,3Bisphosphoglycerate to 3-phosphoglycerate
+
+P13 =P12
+P13_14 = np.array([11, -4])
+P14 = np.array([12, -2])
+
+P15 = np.array([10.3, -4])
+P15_16= np.array([11, -2])
+P16 = np.array([12, -4])
+
+# Fifth Bezier Curve Phosphoenol pyruvate to Pyruvate
+P17 = np.array([16, -2])
+P17_18 = np.array([17, 0])
+P18 = np.array([18, -2])
+
+P19 = np.array([16, 0])
+P19_20 = np.array([17, -2])
+P20 = np.array([18, 0])
+
+
+# Compute Bézier curves
+t = np.linspace(0, 1, 100)
+First_Curve = bezier_curve(t, P0, P1_2, P2)
+Second_Curve = bezier_curve(t, P3, P3_4, P4)
+Third_Curve = bezier_curve(t, P5, P5_6, P6)
+Fourth_Curve= bezier_curve(t, P7, P7_8, P8)
+Fifth_Curve= bezier_curve(t, P9, P9_10, P10)
+Sixth_Curve= bezier_curve(t, P11, P11_12, P12)
+Seventh_Curve= bezier_curve(t, P13, P13_14, P14)
+Eighth_Curve= bezier_curve(t, P15, P15_16, P16)
+Ninth_Curve= bezier_curve(t, P17, P17_18, P18)
+Tenth_Curve= bezier_curve(t, P19, P19_20, P20)
+
+
+
+# Define nodes and edges
+nodes = {
+    'ADP': P4,
+    'F6P': P5,
+    'F1,6Bisp': P6,
+    'DHAP': np.array([8, 2]),
+    'Ga3P': P11,
+    'GA3P': np.array([9, 2]),
+    '1,3BG': P12,
+    '3PG': P14,
+    '2PG': np.array([14, -2]),
+    'PENOL': P17,
+
+    #node for each point on the Bezier Curve
+    'ATP': P3,
+    'Glucose': P0,
+    'G6P': P2,
+    'adp': P7,
+    'atp':P8,
+    'NAD+': P9,
+    'NADH': P10,
+    'AtP': P19,
+    'AdP': P20,
+    '2ADP': P15,
+    '2ATP':P16,
+    'PYR': P18
+
+}
+
+edges = [
+    ('G6P', 'F6P'),
+    ('F1,6Bisp', 'DHAP'),
+    ('F1,6Bisp', 'Ga3P'),
+    ('DHAP', 'GA3P'),
+    ('3PG', '2PG'),
+    ('2PG', 'PENOL')
+]
+
+# Plot
+plt.figure()
+
+# Corrected function to plot multiple labels with positions
+def plot_label(*labels_positions):
+    for i in range(0, len(labels_positions), 2):
+        label = labels_positions[i]
+        position = labels_positions[i + 1]
+        plt.text(position[0], position[1] ,label, fontsize=8, color='black', ha='center')
+
+# Usage of plot_label to add multiple labels
+plot_label(
+    'isomerase', (3.2, 0),
+    'hexokinase', (1, 1),
+    'phosphofructokinase', (5,1),
+    'aldolase',(7,-1),
+    'Aldolase',(7,1),
+    'GLAP hydrolase',(9,-3),
+    'Phosphoglycerate kinase',(11,-3),
+    'Phosglymt',(13,-2),
+    'enolase',(15,-2),
+    'pyruvate kinase',(17,-1)
+)
+
+# Make sure to call plot after adding labels
+
+
+# Plot Bézier curves
+plot_bezier_curves(
+    curves=[ First_Curve, Second_Curve, Third_Curve, Fourth_Curve,Fifth_Curve, Sixth_Curve, Seventh_Curve,
+            Eighth_Curve, Ninth_Curve, Tenth_Curve],
+    labels=['First_curve',
+            'Second_Curve',
+            'Third_Curve',
+            'Fourth_Curve',
+            'Fifth_Curve',
+            'Sixth_Curve',
+            'Seventh_Curve',
+            'Eighth_Curve',
+            'Ninth_Curve',
+            'Tenth_Curve'
+    ],
+    colors=['blue', 'red', 'blue', 'red', 'red', 'blue', 'blue', 'red','black', 'red'] # Blue for non-inverted, Red for inverted
+)
+
+# Plot nodes and edges
+plot_nodes_and_edges(nodes, edges)
+
+# Configure plot
+plt.xlabel('X-axis', color='black')
+plt.ylabel('Y-axis', color='black')
+plt.title('Bézier Curves, Nodes, and Edges (Blue: Non-Inverted, Red: Inverted)', color='black')
+plt.grid(True)
+plt.axis('equal')
+
+# Show plot
+plt.show()
+
+
+# Print coordinates of all curves for reference
+def print_curve_coordinates(name, curve):
+    print(f"\n{name} Coordinates:\n", curve)
+    print("Original Bézier Curve Coordinates:\n", curve)
+    print("\nInverted and Shifted Bézier Curve Coordinates:\n", curve_shifted)
+    print("\nNew Bézier Curve Coordinates:\n", curve_new)
+    print("\nInverted and Shifted New Bézier Curve Coordinates:\n", curve_new_shifted)
