@@ -1,0 +1,229 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import xml.etree.ElementTree as ET
+
+# Bézier function for quadratic Bézier curve (degree 2)
+def bezier_curve(t, P0, P1, P2):
+    """
+     Calculate points on a quadratic Bézier curve.
+
+     Parameters:
+     t (numpy.ndarray): Parameter that varies from 0 to 1, defining the curve's position.
+     P0 (numpy.ndarray): The starting control point of the curve.
+     P1 (numpy.ndarray): The intermediate control point influencing the curve's shape.
+     P2 (numpy.ndarray): The ending control point of the curve.
+
+     Returns:
+     numpy.ndarray: Points on the Bézier curve for the given parameter t.
+     """
+    curve = np.outer((1 - t) ** 2, P0) + np.outer(2 * (1 - t) * t, P1) + np.outer(t ** 2, P2)
+    return curve
+
+# Function to plot Bézier curves
+def plot_bezier_curves(curves, labels, colors):
+    """
+      Plot multiple Bézier curves on a 2D graph.
+
+      Parameters:
+      curves (list): List of numpy arrays representing Bézier curves.
+      labels (list): List of labels for each Bézier curve.
+      colors (list): List of colors for each Bézier curve.
+
+      This function iterates through the curves and plots each one with the specified label and color.
+      """
+    for curve, label, color in zip(curves, labels, colors):
+        plt.plot(curve[:, 0], curve[:, 1], linestyle='-', color=color, label=label)
+
+# Function to plot nodes and edges
+def plot_nodes_and_edges(nodes, edges):
+    """
+       Plot nodes and edges on a 2D graph.
+
+       Parameters:
+       nodes (dict): Dictionary containing node labels as keys and their (x, y) coordinates as values.
+       edges (list): List of edges to be plotted, where each edge is a tuple of (start_label, end_label).
+
+       This function plots each node as a point and labels it, as well as drawing lines for the edges.
+       """
+    # Plot nodes
+    for label, (x, y) in nodes.items():
+        if x is not None and y is not None:
+            plt.scatter(x, y, color='black')
+            plt.text(x, y, label, fontsize=8, color='black')
+
+    # Plot edges
+    for (start_label, end_label) in edges:
+        start = nodes[start_label]
+        end = nodes[end_label]
+        if start[0] is not None and end[0] is not None:  # Ensure coordinates are valid
+            plt.plot([start[0], end[0]], [start[1], end[1]], 'k-')
+
+# Function to load nodes and edges from a GEXF file
+def load_gexf_nodes_edges(file_path):
+    """
+        Load nodes and edges from a GEXF (Graph Exchange XML Format) file.
+
+        Parameters:
+        file_path (str): Path to the GEXF file.
+
+        Returns:
+        tuple: A tuple containing:
+            - nodes (dict): Dictionary of node IDs and their (x, y) coordinates.
+            - edges (list): List of edges represented as tuples of (source, target).
+
+        This function parses the GEXF file and extracts node and edge information using XML parsing.
+        """
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+
+    # Define the namespaces correctly, based on the GEXF format
+    namespaces = {
+        'gexf': 'http://www.gexf.net/1.2draft',
+        'viz': 'http://www.gexf.net/1.2draft/viz'  # Include 'viz' namespace for positions
+    }
+
+    nodes = {}
+    for node in root.findall('.//gexf:node', namespaces=namespaces):
+        node_id = node.get('id')
+        pos = node.find('.//viz:position', namespaces=namespaces)
+        if pos is not None:
+            x = float(pos.get('x', '0'))
+            y = float(pos.get('y', '0'))
+            nodes[node_id] = (x, y)
+        else:
+            nodes[node_id] = (None, None)
+
+    edges = []
+    for edge in root.findall('.//gexf:edge', namespaces=namespaces):
+        source = edge.get('source')
+        target = edge.get('target')
+        edges.append((source, target))
+
+    return nodes, edges
+
+# Path to your GEXF file
+gexf_file_path = 'C:\\Users\\user\\Documents\\converted_graph3.gexf'
+
+# Load nodes and edges from the GEXF file
+nodes, edges = load_gexf_nodes_edges(gexf_file_path)
+
+# Print nodes and their positions for debugging
+print("Nodes and their positions:")
+for node, position in nodes.items():
+    print(f"{node}: {position}")
+
+# Print edges for debugging
+print("\nEdges:")
+for edge in edges:
+    print(edge)
+
+# Define control points for Bézier curves
+P0 = np.array([0, 0])
+P1_2 = np.array([1, 2])
+P2 = np.array([2, 0])
+
+P3 = np.array([0, 2])
+P3_4 = np.array([1, 0])
+P4 = np.array([2, 2])
+
+P5 = np.array([4, 0])
+P5_6 = np.array([5, 2])
+P6 = np.array([6, 0])
+
+P7 = np.array([4, 2])
+P7_8 = np.array([5, 0])
+P8 = np.array([6, 2])
+
+P9 = np.array([8, -4])
+P9_10 = np.array([9, -2])
+P10 = np.array([10, -4])
+
+P11 = np.array([8, -2])
+P11_12 = np.array([9, -4])
+P12 = np.array([10, -2])
+
+P13 = P12
+P13_14 = np.array([11, -4])
+P14 = np.array([12, -2])
+
+P15 = np.array([10.3, -4])
+P15_16 = np.array([11, -2])
+P16 = np.array([12, -4])
+
+P17 = np.array([16, -2])
+P17_18 = np.array([17, 0])
+P18 = np.array([18, -2])
+
+P19 = np.array([16, 0])
+P19_20 = np.array([17, -2])
+P20 = np.array([18, 0])
+
+# Compute Bézier curves
+t = np.linspace(0, 1, 100)
+First_Curve = bezier_curve(t, P0, P1_2, P2)
+Second_Curve = bezier_curve(t, P3, P3_4, P4)
+Third_Curve = bezier_curve(t, P5, P5_6, P6)
+Fourth_Curve = bezier_curve(t, P7, P7_8, P8)
+Fifth_Curve = bezier_curve(t, P9, P9_10, P10)
+Sixth_Curve = bezier_curve(t, P11, P11_12, P12)
+Seventh_Curve = bezier_curve(t, P13, P13_14, P14)
+Eighth_Curve = bezier_curve(t, P15, P15_16, P16)
+Ninth_Curve = bezier_curve(t, P17, P17_18, P18)
+Tenth_Curve = bezier_curve(t, P19, P19_20, P20)
+
+# Plot
+plt.figure()
+
+# Plot Bézier curves
+plot_bezier_curves(
+    curves=[First_Curve, Second_Curve, Third_Curve, Fourth_Curve, Fifth_Curve, Sixth_Curve,
+            Seventh_Curve, Eighth_Curve, Ninth_Curve, Tenth_Curve],
+    labels=['First_curve', 'Second_Curve', 'Third_Curve', 'Fourth_Curve', 'Fifth_Curve',
+            'Sixth_Curve', 'Seventh_Curve', 'Eighth_Curve', 'Ninth_Curve', 'Tenth_Curve'],
+    colors=['blue', 'red', 'blue', 'red', 'red', 'blue', 'blue', 'red', 'blue', 'red']  # Colors
+)
+
+
+# Corrected function to plot multiple labels with positions
+def plot_label(*labels_positions):
+    for i in range(0, len(labels_positions), 2):
+        label = labels_positions[i]
+        position = labels_positions[i + 1]
+        plt.text(position[0], position[1], label, fontsize=8, color='black', ha='center')
+
+
+
+# Plot nodes and edges from GEXF
+plot_nodes_and_edges(nodes, edges)
+
+# Configure plot
+plt.xlabel('X-axis', color='black')
+plt.ylabel('Y-axis', color='black')
+plt.title('Python Module (Using GEXF Data)', color='black')
+plt.axis('equal')
+
+# Show plot
+plt.show()
+
+# Print coordinates of all curves for reference
+def print_curve_coordinates(name, curve):
+
+    """
+        Print the coordinates of the specified Bézier curve.
+
+        Parameters:
+        name (str): The name of the curve for identification in the output.
+        curve (numpy.ndarray): The coordinates of the curve to print.
+        """
+    print(f"\n{name} Coordinates:\n", curve)
+
+print_curve_coordinates("First_Curve", First_Curve)
+print_curve_coordinates("Second_Curve", Second_Curve)
+print_curve_coordinates("Third_Curve", Third_Curve)
+print_curve_coordinates("Fourth_Curve", Fourth_Curve)
+print_curve_coordinates("Fifth_Curve", Fifth_Curve)
+print_curve_coordinates("Sixth_Curve", Sixth_Curve)
+print_curve_coordinates("Seventh_Curve", Seventh_Curve)
+print_curve_coordinates("Eighth_Curve", Eighth_Curve)
+print_curve_coordinates("Ninth_Curve", Ninth_Curve)
+print_curve_coordinates("Tenth_Curve", Tenth_Curve)
