@@ -1,0 +1,93 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Arc
+
+"""Define radius and angle theta for calculations"""
+r = 1  # radius
+theta = np.radians(60)  # angle in degrees converted to radians
+
+# Calculate p, q, and s using the provided equations
+p = r * np.sin(theta / 2)
+q = r * np.cos(theta / 2)
+s = r * (1 - np.cos(theta / 2))
+
+# Define the angle for N1 and N2 (0 and 180 degrees)
+theta_N1 = np.radians(0)     # 0 degrees
+theta_N2 = np.radians(180)   # 180 degrees
+
+# Calculate positions of N1 and N2
+N1 = (r * np.cos(theta_N1), r * np.sin(theta_N1))  # (1, 0)
+N2 = (r * np.cos(theta_N2), r * np.sin(theta_N2))  # (-1, 0)
+
+# Calculate points for the chord
+start_point = (r * np.cos(0), r * np.sin(0))       # Corresponds to angle 0 degrees
+end_point = (r * np.cos(theta), r * np.sin(theta))  # Corresponds to angle theta
+
+# Midpoint of the chord
+midpoint = ((start_point[0] + end_point[0]) / 2, (start_point[1] + end_point[1]) / 2)
+
+# Calculate points on the arc
+arc_x = r * np.cos(np.linspace(0, theta, 100))
+arc_y = r * np.sin(np.linspace(0, theta, 100))
+
+# Create the figure and axis
+fig, ax = plt.subplots(figsize=(8, 8))
+
+# Draw the circle
+circle = plt.Circle((0, 0), r, edgecolor='black', facecolor='none')
+ax.add_patch(circle)
+
+# Draw the diameter (line connecting N1 and N2)
+ax.plot([N1[0], N2[0]], [N1[1], N2[1]], 'black', linestyle='-', linewidth=1, label='Diameter')
+
+# Add nodes N1 and N2 at the ends of the diameter with labels
+ax.plot(N1[0], N1[1], 'ro')  # Node N1
+ax.text(N1[0] + 0.1, N1[1] - 0.1, 'N1', fontsize=12, color='red')
+
+ax.plot(N2[0], N2[1], 'ro')  # Node N2
+ax.text(N2[0] - 0.15, N2[1] - 0.1, 'N2', fontsize=12, color='red')
+
+# Draw the chord
+ax.plot([start_point[0], end_point[0]], [start_point[1], end_point[1]], 'blue', linestyle='-', linewidth=2, label=f'Chord (p = {p:.2f})')
+
+# Draw the arc
+ax.plot(arc_x, arc_y, 'red', linestyle='-', linewidth=2, label=f'Arc ($\\theta = 60^\circ$)')
+
+# Draw the radii
+ax.plot([0, start_point[0]], [0, start_point[1]], 'green', linestyle='--', linewidth=2, label='Radius')
+ax.plot([0, end_point[0]], [0, end_point[1]], 'green', linestyle='--', linewidth=2)
+
+# Draw the sagitta (s) as a vertical line from the midpoint of the chord to the arc
+sagitta_end = (midpoint[0], midpoint[1] + s)
+ax.plot([midpoint[0], midpoint[0]], [midpoint[1], sagitta_end[1]], 'purple', linestyle='-', linewidth=2, label=f'Sagitta (s = {s:.2f})')
+
+# Draw arcs C1 centered at (0,-1) and passing through N1 to N2
+arc_C1 = Arc((0, -1), 2*r, 2*r, angle=0, theta1=0, theta2=180, color='orange', linestyle='--', linewidth=2, label='Arc C1 from N1 to N2 (Shifted)')
+ax.add_patch(arc_C1)
+
+# Draw arcs C2 centered at (0,1) and passing through N2 to N1
+arc_C2 = Arc((0, 1), 2*r, 2*r, angle=0, theta1=180, theta2=360, color='purple', linestyle='--', linewidth=2, label='Arc C2 from N2 to N1 (Shifted)')
+ax.add_patch(arc_C2)
+
+# Mark the points
+ax.plot([0], [0], 'ko')  # Center
+ax.plot([start_point[0]], [start_point[1]], 'ko')  # Start of chord/arc
+ax.plot([end_point[0]], [end_point[1]], 'ko')  # End of chord/arc
+ax.plot([midpoint[0]], [midpoint[1]], 'ko')  # Midpoint of chord
+
+# Set aspect of the plot to be equal
+ax.set_aspect('equal')
+
+# Set limits and labels
+ax.set_xlim(-1.5, 1.5)
+ax.set_ylim(-2.5, 2.5)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_title('Circle with Arcs C1 and C2, Diameter, Chord (p), Sagitta (s), Radii, and Nodes (N1, N2)')
+
+# Add a legend
+ax.legend()
+
+
+# Display the plot
+plt.show()
