@@ -1,0 +1,62 @@
+# Save GDF file format on Gephi as Glycolysis,gdf then convert Glycolysis
+# GDF file to GEXF using the code below.
+
+import networkx as nx
+
+
+def parse_gdf(file_path):
+    """Parses a GDF file and creates a NetworkX graph."""
+    G = nx.Graph()
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+
+        node_section = False
+        edge_section = False
+
+        for line in lines:
+            # Detect node section
+            if line.startswith("nodedef>"):
+                node_section = True
+                edge_section = False
+                continue
+
+            # Detect edge section
+            if line.startswith("edgedef>"):
+                node_section = False
+                edge_section = True
+                continue
+
+            # Add nodes
+            if node_section:
+                parts = line.strip().split(',')
+                node_id = parts[0]
+                label = parts[1].strip('"')
+                G.add_node(node_id, label=label)
+
+            # Add edges
+            if edge_section:
+                parts = line.strip().split(',')
+                source = parts[0]
+                target = parts[1]
+                G.add_edge(source, target)
+
+    return G
+
+
+def save_graph_as_gexf(G, output_file):
+    """Saves the NetworkX graph as a GEXF file."""
+    nx.write_gexf(G, output_file)
+    print(f"Graph saved as GEXF at: {output_file}")
+
+
+# Path to the GDF file
+gdf_file_path = r'C:/Users/user/Documents/Glycolysis.gdf'
+
+# Parse the GDF file
+G = parse_gdf(gdf_file_path)
+
+# Path to save the GEXF file
+gexf_file_path = r'C:/Users/user/Documents/converted_graph2.gexf'
+
+# Save the graph as a GEXF file
+save_graph_as_gexf(G, gexf_file_path)
