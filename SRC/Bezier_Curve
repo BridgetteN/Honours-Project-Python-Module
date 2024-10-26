@@ -1,0 +1,52 @@
+#Add Libraries
+import numpy as np
+import matplotlib.pyplot as plt
+
+"""
+    Define the 3 major points:
+    P0, starting point. P1,control point , P2, end point.
+    """
+P0 = np.array([0, 0])
+P1 = np.array([1, 2])
+P2 = np.array([2, 0])
+
+
+def quadratic_bezier(t, P0, P1, P2):
+    """
+    This function is to calculates the x or y value of a quadratic Bezier
+    A quadratic Bézier curve is defined as B(t) = (1 - t)^2 * P0 + 2 * (1 - t) * t * P1 + t^2 * P2
+    curve give the start (P0), end (P2) and control point (P1) coordinates
+    :param P0: the x or y coordinate of the start of the bezier curve
+    :param P1: the x or y coordinate of the control point of the Bezier curve
+    :param P2: te x or y coordinbate of the end of the Bezier curve
+    :param t: the fraction between 0 and 1 (inclusive)
+    Intermediate values of t produce points along the curve influenced by P1, the control point.
+    :return:
+    B_t (float) the x or y coordinate of the Bezier curve at fraction t of its length
+    """
+    B_t = ((1 - t) * (1 - t) * P0) + (2 * t * (1 - t) * P1) + (t * t * P2)
+    return B_t
+
+# Bézier function for quadratic Bézier curve (degree 2)
+def bezier_curve(t, P0, P1, P2):
+    # Bézier curve formula
+    curve = np.outer((1 - t)**2, P0) + np.outer(2 * (1 - t) * t, P1) + np.outer(t**2, P2)
+    return curve
+
+# Generate t values
+t_values = np.linspace(0, 1)
+
+# Calculate the points on the Bézier curve
+curve_points = np.array([quadratic_bezier(t, P0, P1, P2) for t in t_values])
+
+# Plot the curve
+plt.plot(curve_points[:, 0], curve_points[:, 1], label='Quadratic Bézier curve')
+
+# Plot the control points
+plt.plot([P0[0], P1[0], P2[0]], [P0[1], P1[1], P2[1]], 'ro-', label='Control Points')
+
+# Labels and legend
+plt.title('Quadratic Bézier Curve')
+plt.legend()
+plt.show()
+plt.savefig('Quadratic B Curve'.png)
