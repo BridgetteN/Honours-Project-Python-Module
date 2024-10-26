@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 # Bézier function for quadratic Bézier curve (degree 2)
 def bezier_curve(t, P0, P1, P2):
+"""Parses a GDF file and creates a NetworkX graph."""
     # Bézier curve formula
     curve = np.outer((1 - t)**2, P0) + np.outer(2 * (1 - t) * t, P1) + np.outer(t**2, P2)
     return curve
