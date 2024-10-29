@@ -1,0 +1,28 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def visualize_kegg_network(reactions):
+    """
+    Visualizes a KEGG-like reaction network using a directed graph.
+    
+    Parameters:
+    reactions (dict): A dictionary where each key is a reaction ID and each value
+                      contains substrates and products involved in the reaction.
+    """
+    
+    # Create a directed graph using NetworkX
+    G = nx.DiGraph()
+
+    # Loop through each reaction in the reactions dictionary
+    for reaction_id, data in reactions.items():
+        # For each substrate in the reaction
+        for substrate in data['substrates']:
+            # For each product in the reaction
+            for product in data['products']:
+                # Add a directed edge from substrate to product
+                # with the reaction ID as a label
+                G.add_edge(substrate, product, label=reaction_id)
+
+    # Generate positions for the nodes using the spring layout algorithm
+    pos = nx.spring_layout(G)
+    
