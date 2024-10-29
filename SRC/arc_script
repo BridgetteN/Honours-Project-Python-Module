@@ -1,0 +1,97 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch
+import numpy as np
+
+# Create a new graph
+G = nx.Graph()
+
+# Add nodes and edges to the graph
+G.add_edge(1, 2)  # Edge between node 1 and 2
+G.add_edge(3, 4)  # Edge between node 3 and 4
+G.add_edge(5, 6)  # Edge between node 5 and 6
+G.add_edge(1, 3)  # Edge between node 1 and 3
+G.add_edge('atp', 'adp')  # Edge between 'atp' and 'adp'
+
+# Define custom positions for nodes to align edges side by side
+pos = {
+    1: (0, 0.264),
+    2: (1, 0.264),
+    3: (0, -0.1770),
+    4: (1, -0.1770),
+    5: (0, -0.264),
+    6: (1, -0.264),
+    'atp': (0, 0.0443),
+    'adp': (1, 0.0443)
+}
+
+# Function to compute the closest point on the line segment (a, b) to point p
+def closest_point_on_line(p, a, b):
+    """Find the closest point on the line segment ab to point p."""
+    ab = np.array(b) - np.array(a)
+    ap = np.array(p) - np.array(a)
+    t = np.dot(ab, ap) / np.dot(ab, ab)
+    t = max(0, min(1, t))  # Clamp t to the range [0, 1]
+    return np.array(a) + t * ab
+
+# Function to draw a curved (arc) edge
+def draw_arc(ax, start, end, radius, color='black', linestyle='dotted'):
+    """Draw an arc from start to end with a given radius."""
+    (x0, y0) = start
+    (x1, y1) = end
+    arc = FancyArrowPatch(
+        (x0, y0), (x1, y1),
+        connectionstyle=f"arc3,rad={radius}",
+        color=color,
+        linestyle=linestyle,
+        arrowstyle='-',
+        mutation_scale=10
+    )
+    ax.add_patch(arc)
+
+# Create a plot and axis
+fig, ax = plt.subplots()
+
+# Draw the graph on the axis with specified attributes
+nx.draw(G, pos, with_labels=True, node_color='lightblue', edge_color='black', node_size=500, font_size=16,
+        font_weight='bold', ax=ax)
+
+# Calculate the midpoint of the arc's current path (between nodes 5 and 6)
+start_black = np.array(pos[5])
+end_black = np.array(pos[6])
+current_midpoint_black = (start_black + end_black) / 2
+
+# Calculate the midpoint of the edge between nodes 3 and 4
+midpoint_3_4 = (np.array(pos[3]) + np.array(pos[4])) / 2
+
+# Calculate the translation vector to move the arc's midpoint to the midpoint of the edge (3, 4)
+translation_black = midpoint_3_4 - current_midpoint_black
+
+# Adjust start and end points of the black arc by the translation vector
+new_start_black = start_black + translation_black
+new_end_black = end_black + translation_black
+
+# Draw the adjusted black arc to touch the midpoint of edge (3, 4)
+draw_arc(ax, new_start_black, new_end_black, radius=-0.404, color='black', linestyle='dotted')
+
+# Draw the red arc with the midpoint adjusted to (0.5, 0.266)
+desired_midpoint_red = np.array([0.5, 0.266])
+start_red = np.array(pos[3])
+end_red = np.array(pos[4])
+
+# Calculate the current midpoint and translation vector for the red arc
+current_midpoint_red = (start_red + end_red) / 2
+translation_red = desired_midpoint_red - current_midpoint_red
+
+# Adjust start and end points for the red arc
+new_start_red = start_red + translation_red
+new_end_red = end_red + translation_red
+
+# Draw the red arc with the adjusted midpoint
+draw_arc(ax, new_start_red, new_end_red, radius=0.404, color='red', linestyle='dashed')
+
+# Display the graph with the custom arcs and lines
+plt.legend()
+plt.title('Arc Adjustments')
+plt.savefig('attempt3.png')  # Save the figure as a PNG file
+plt.show()  # Show the plot
