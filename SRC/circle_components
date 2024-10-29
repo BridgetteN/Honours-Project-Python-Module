@@ -1,0 +1,166 @@
+import numpy as np  # Importing the NumPy library for numerical calculations
+import matplotlib.pyplot as plt  # Importing Matplotlib for plotting
+from matplotlib.patches import Arc  # Importing Arc from Matplotlib for drawing arcs
+
+# Define the radius and angle theta for the circle and arc
+r = 1  # Set the radius of the circle to 1 unit
+theta = np.radians(60)  # Convert 60 degrees to radians for calculations
+
+# Calculate the sagitta (s), half-chord (p), and half-chord projection (q)
+p = r * np.sin(theta / 2)  # Half the length of the chord
+"""
+p = r * sin(theta / 2) 
+This calculates half the length of the chord (p). 
+'r' is the radius of the circle, and 'theta' is the angle at the center of the circle.
+"""
+
+q = r * np.cos(theta / 2)  # Projection of the chord onto the radius
+"""
+q = r * cos(theta / 2) 
+This computes the projection of the chord (q) onto the radius. 
+It uses the radius 'r' and half of the angle 'theta'.
+"""
+
+s = r * (1 - np.cos(theta / 2))  # Sagitta (s), height from midpoint of the chord to the arc
+"""
+s = r * (1 - cos(theta / 2)) 
+This gives the sagitta (s), which is the vertical distance from the midpoint of the chord to the arc.
+It shows how "high" the arc rises above the chord.
+"""
+
+# Define angles for nodes N1 and N2 (0 and 180 degrees)
+theta_N1 = np.radians(0)     # Angle for node N1 (0 degrees, right side of the circle)
+theta_N2 = np.radians(180)   # Angle for node N2 (180 degrees, left side of the circle)
+
+# Calculate positions of N1 and N2 based on their angles
+N1 = np.array([r * np.cos(theta_N1), r * np.sin(theta_N1)])  # Position of N1 at (1, 0)
+"""
+N1 = [r * cos(0), r * sin(0)] 
+This calculates the position of node N1 at angle 0 degrees, which is (1, 0) on the circle.
+"""
+
+N2 = np.array([r * np.cos(theta_N2), r * np.sin(theta_N2)])  # Position of N2 at (-1, 0)
+"""
+N2 = [r * cos(180), r * sin(180)] 
+This calculates the position of node N2 at angle 180 degrees, which is (-1, 0) on the circle.
+"""
+
+# Define the rotation angle phi for the chord
+phi = np.radians(30)  # Example rotation angle of 30 degrees
+
+# Define the rotation matrix to rotate points in the plane
+rotation_matrix = np.array([[np.cos(phi), -np.sin(phi)],
+                            [np.sin(phi), np.cos(phi)]])
+"""
+rotation_matrix = [[cos(phi), -sin(phi)], 
+                   [sin(phi), cos(phi)]]
+This defines a rotation matrix for rotating points by angle phi in 2D space.
+"""
+
+# Calculate the starting point of the chord at angle 0 degrees
+start_point = np.array([r * np.cos(0), r * np.sin(0)])  # Point at angle 0 degrees
+"""
+start_point = [r * cos(0), r * sin(0)] 
+This calculates the starting point of the chord at angle 0 degrees, which is (1, 0).
+"""
+rotated_start_point = rotation_matrix @ start_point  # Rotate the start point
+"""
+rotated_start_point = rotation_matrix @ start_point 
+This rotates the starting point using the rotation matrix.
+"""
+
+# Calculate the endpoint of the chord at angle theta
+end_point = np.array([r * np.cos(theta), r * np.sin(theta)])  # Point at angle theta
+"""
+end_point = [r * cos(theta), r * sin(theta)] 
+This calculates the endpoint of the chord at the specified angle theta.
+"""
+rotated_end_point = rotation_matrix @ end_point  # Rotate the end point
+"""
+rotated_end_point = rotation_matrix @ end_point 
+This rotates the endpoint using the rotation matrix.
+"""
+
+# Midpoint of the chord (before rotation)
+midpoint = (start_point + end_point) / 2  # Average the start and end points
+"""
+midpoint = (start_point + end_point) / 2 
+This calculates the midpoint of the chord by averaging the start and end points.
+"""
+
+# Calculate points on the arc using the angle theta
+arc_x = r * np.cos(np.linspace(0, theta, 100))  # X-coordinates of the arc points
+"""
+arc_x = r * cos(linspace(0, theta, 100)) 
+This generates 100 x-coordinates for points along the arc from angle 0 to theta.
+"""
+
+arc_y = r * np.sin(np.linspace(0, theta, 100))  # Y-coordinates of the arc points
+"""
+arc_y = r * sin(linspace(0, theta, 100)) 
+This generates 100 y-coordinates for points along the arc that correspond to the x-coordinates.
+"""
+
+# Create the figure and axis for plotting
+fig, ax = plt.subplots(figsize=(8, 8))  # Set the figure size
+
+# Draw the circle with the defined radius
+circle = plt.Circle((0, 0), r, edgecolor='black', facecolor='none')  # Create a circle
+ax.add_patch(circle)  # Add the circle to the plot
+
+# Draw the diameter (line connecting N1 and N2)
+ax.plot([N1[0], N2[0]], [N1[1], N2[1]], 'black', linestyle='-', linewidth=1, label='Diameter')
+
+# Add nodes N1 and N2 at the ends of the diameter with labels
+ax.plot(N1[0], N1[1], 'ro')  # Mark node N1 with a red dot
+ax.text(N1[0] + 0.1, N1[1] - 0.1, 'N1', fontsize=12, color='red')  # Label N1
+
+ax.plot(N2[0], N2[1], 'ro')  # Mark node N2 with a red dot
+ax.text(N2[0] - 0.15, N2[1] - 0.1, 'N2', fontsize=12, color='red')  # Label N2
+
+# Draw the chord (before rotation) connecting start and end points
+ax.plot([start_point[0], end_point[0]], [start_point[1], end_point[1]], 
+        'blue', linestyle='-', linewidth=2, label=f'Chord (p = {p:.2f})')
+
+# Draw the chord after rotation
+ax.plot([rotated_start_point[0], rotated_end_point[0]], 
+        [rotated_start_point[1], rotated_end_point[1]], 
+        'cyan', linestyle='-', linewidth=2, label=f'Rotated Chord')
+
+# Draw the arc defined by angle theta
+ax.plot(arc_x, arc_y, 'red', linestyle='-', linewidth=2, label=f'Arc ($\\theta = 60^\circ$)')
+
+# Draw the radii from the center of the circle to the start and end points of the chord
+ax.plot([0, start_point[0]], [0, start_point[1]], 'green', linestyle='--', linewidth=2, label='Radius')
+ax.plot([0, end_point[0]], [0, end_point[1]], 'green', linestyle='--', linewidth=2)
+
+# Draw the sagitta (s) as a vertical line from the midpoint of the chord to the arc
+sagitta_end = (midpoint[0], midpoint[1] + s)  # Endpoint of the sagitta line
+ax.plot([midpoint[0], midpoint[0]], [midpoint[1], sagitta_end[1]], 
+        'purple', linestyle='-', linewidth=2, label=f'Sagitta (s = {s:.2f})')
+
+# Draw arc C1 centered at (0,-1) passing through N1 to N2
+arc_C1 = Arc((0, -1), 2*r, 2*r, angle=0, theta1=0, theta2=180, 
+              color='orange', linestyle='--', linewidth=2, 
+              label='Arc C1 from N1 to N2 (Shifted)')
+ax.add_patch(arc_C1)  # Add arc C1 to the plot
+
+# Draw arc C2 centered at (0,1) passing through N2 to N1
+arc_C2 = Arc((0, 1), 2*r, 2*r, angle=0, theta1=180, theta2=360, 
+              color='purple', linestyle='--', linewidth=2, 
+              label='Arc C2 from N2 to N1 (Shifted)')
+ax.add_patch(arc_C2)  # Add arc C2 to the plot
+
+# Mark the center point and key points on the circle
+ax.plot([0], [0], 'ko')  # Center of the circle marked with a black dot
+ax.plot([start_point[0]], [start_point[1]], 'ko')  # Mark the start point of the chord with a black dot
+ax.plot([end_point[0]], [end_point[1]], 'ko')  # Mark the end point of the chord with a black dot
+
+# Set the aspect of the plot to be equal, so the circle isn't distorted
+ax.set_aspect('equal', adjustable='box')
+ax.axis('off')  # Hide the axes for better visualization
+ax.legend()  # Show the legend for labels
+
+# Show the plot
+plt.title('Circle with Chord, Arc, and Sagitta Visualization')  # Title for the plot
+plt.show()  # Display the plot
