@@ -50,13 +50,13 @@ def save_graph_as_gexf(G, output_file):
 
 
 # Path to the GDF file
-gdf_file_path = r'C:/Users/user/Documents/Glycolysis.gdf'
+gdf_file_path = r'path location of file.gdf'
 
 # Parse the GDF file
 G = parse_gdf(gdf_file_path)
 
 # Path to save the GEXF file
-gexf_file_path = r'C:/Users/user/Documents/converted_graph3.gexf'
+gexf_file_path = r'path location of file.gexf'
 
 # Save the graph as a GEXF file
 save_graph_as_gexf(G, gexf_file_path)
